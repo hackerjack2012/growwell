@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Grow Child</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
+        
+        :root {
+            --primary: #4A9B8E;
+            --accent: #F4A261;
+            --light: #F8F5F2;
+            --dark: #2C3E50;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system_ui, sans-serif; line-height: 1.7; color: #333; }
+        h1, h2, h3 { font-family: 'Playfair Display', sans-serif; color: var(--dark); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        header { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-size: 1.8rem; font-weight: 700; color: var(--primary); text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; }
+        .nav-links a:hover { color: var(--primary); }
+        .cta-button { background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 600; }
+        
+        section { padding: 80px 0; }
+        .section-light { background: var(--light); }
+        .section-title { text-align: center; font-size: 2.5rem; margin-bottom: 3rem; }
+        
+        .service-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 4rem;
+        }
+        
+        .service-detail.reverse { grid-template-columns: 1fr 1fr; }
+        
+        @media (max-width: 768px) {
+            .service-detail, .service-detail.reverse { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="index.html" class="logo">Grow Child</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="#">Team</a></li>
+                    <li><a href="#">Stories</a></li>
+                </ul>
+                <a href="index.html#contact" class="cta-button">Schedule Consultation</a>
+            </nav>
+        </div>
+    </header>
+
+    <section style="background: linear-gradient(rgba(74,155,142,0.9), rgba(74,155,142,0.9)), url('https://picsum.photos/id/1015/2000/800'); color: white; padding: 140px 0; text-align: center;">
+        <div class="container">
+            <h1 style="font-size: 3rem;">Our Services</h1>
+            <p style="font-size: 1.4rem; max-width: 700px; margin: 1rem auto;">Personalized therapies that help specially abled children grow with confidence and joy.</p>
+        </div>
+    </section>
+
+    <section class="section-light">
+        <div class="container">
+            <div class="service-detail">
+                <div>
+                    <h2>Occupational Therapy</h2>
+                    <p>Helps children develop the skills needed for everyday life. We focus on fine motor skills, sensory processing, self-care, and play-based learning in a supportive environment.</p>
+                    <ul style="margin: 1.5rem 0; padding-left: 1.3rem;">
+                        <li>Handwriting &amp; fine motor development</li>
+                        <li>Sensory integration therapy</li>
+                        <li>Daily living skills (dressing, feeding, etc.)</li>
+                        <li>Attention and regulation support</li>
+                    </ul>
+                    <a href="index.html#contact" class="cta-button">Book Assessment</a>
+                </div>
+                <div><img src="https://picsum.photos/id/201/600/400" alt="Child doing occupational therapy" style="width:100%; border-radius:12px;"></div>
+            </div>
+
+            <div class="service-detail reverse">
+                <div><img src="https://picsum.photos/id/133/600/400" alt="Speech therapy session" style="width:100%; border-radius:12px;"></div>
+                <div>
+                    <h2>Speech &amp; Language Therapy</h2>
+                    <p>Supporting communication, speech clarity, language development, and social interaction skills through engaging, play-based methods.</p>
+                    <ul style="margin: 1.5rem 0; padding-left: 1.3rem;">
+                        <li>Expressive &amp; receptive language</li>
+                        <li>Articulation and fluency</li>
+                        <li>Social communication skills</li>
+                        <li>Augmentative communication support</li>
+                    </ul>
+                    <a href="index.html#contact" class="cta-button">Book Assessment</a>
+                </div>
+            </div>
+
+            <!-- Add more services similarly -->
+        </div>
+    </section>
+
+    <footer style="background:#2C3E50; color:#ddd; padding:60px 0; text-align:center;">
+        <div class="container">
+            <p>&copy; 2026 Grow Child Therapy Center. Built with care.</p>
+        </div>
+    </footer>
+</body>
+</html>

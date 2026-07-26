@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Grow Child Consultations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+
+        .login-container.show {
+            display: block;
+        }
+
+        .admin-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 1200px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .admin-container.show {
+            display: block;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #5568d3;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Admin Panel Styles */
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .admin-content {
+            padding: 30px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .submissions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .submissions-table thead {
+            background: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .submissions-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .submissions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .submissions-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #ee5a52;
+        }
+
+        .export-btn {
+            background: #51cf66;
+            color: white;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+        }
+
+        .export-btn:hover {
+            background: #40c057;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .submissions-table {
+                font-size: 12px;
+            }
+
+            .submissions-table th,
+            .submissions-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div class="login-container show" id="loginContainer">
+        <h2 class="login-title">Admin Login</h2>
+        <div class="error-message" id="errorMessage"></div>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" required placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="Enter password">
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <p style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+            
+        </p>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="admin-container" id="adminContainer">
+        <div class="admin-header">
+            <h1 class="admin-title">📊 Consultation Dashboard</h1>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="admin-content">
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Total Submissions</div>
+                    <div class="stat-value" id="totalCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Last Submission</div>
+                    <div class="stat-value" id="lastSubmission">-</div>
+                </div>
+            </div>
+
+            <button class="action-btn export-btn" onclick="exportToCSV()">📥 Export to CSV</button>
+
+            <div class="table-container">
+                <table class="submissions-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Parent Name</th>
+                            <th>Child Name</th>
+                            <th>Age</th>
+                            <th>Service</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissionsTableBody">
+                        <tr>
+                            <td colspan="9" class="no-data">No submissions yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default admin credentials (change these in production!)
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
+
+        // Load submissions from localStorage
+        function getSubmissions() {
+            const data = localStorage.getItem('growChildSubmissions');
+            return data ? JSON.parse(data) : [];
+        }
+
+        // Save submissions to localStorage
+        function saveSubmissions(submissions) {
+            localStorage.setItem('growChildSubmissions', JSON.stringify(submissions));
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                document.getElementById('loginContainer').classList.remove('show');
+                document.getElementById('adminContainer').classList.add('show');
+                loadDashboard();
+            } else {
+                errorMsg.textContent = 'Invalid username or password';
+                errorMsg.classList.add('show');
+                setTimeout(() => {
+                    errorMsg.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.removeItem('adminLoggedIn');
+                document.getElementById('loginContainer').classList.add('show');
+                document.getElementById('adminContainer').classList.remove('show');
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            }
+        }
+
+        // Load dashboard
+        function loadDashboard() {
+            const submissions = getSubmissions();
+            const tbody = document.getElementById('submissionsTableBody');
+            const totalCount = document.getElementById('totalCount');
+            const lastSubmission = document.getElementById('lastSubmission');
+
+            totalCount.textContent = submissions.length;
+
+            if (submissions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="no-data">No submissions yet</td></tr>';
+                lastSubmission.textContent = '-';
+                return;
+            }
+
+            // Show last submission date
+            const lastDate = new Date(submissions[submissions.length - 1].timestamp);
+            lastSubmission.textContent = lastDate.toLocaleDateString();
+
+            // Populate table
+            tbody.innerHTML = submissions.map((sub, index) => {
+                const date = new Date(sub.timestamp).toLocaleString();
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${sub.parentName}</td>
+                        <td>${sub.childName}</td>
+                        <td>${sub.childAge}</td>
+                        <td>${sub.serviceType}</td>
+                        <td>${sub.email}</td>
+                        <td>${sub.phone}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="action-btn delete-btn" onclick="deleteSubmission(${index})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Delete submission
+        function deleteSubmission(index) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                const submissions = getSubmissions();
+                submissions.splice(index, 1);
+                saveSubmissions(submissions);
+                loadDashboard();
+                showSuccessMessage('Submission deleted successfully');
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const submissions = getSubmissions();
+            if (submissions.length === 0) {
+                alert('No submissions to export');
+                return;
+            }
+
+            let csv = 'Parent Name,Child Name,Age,Service Type,Email,Phone,Submission Date\n';
+            submissions.forEach(sub => {
+                const date = new Date(sub.timestamp).toLocaleString();
+                csv += `"${sub.parentName}","${sub.childName}",${sub.childAge},"${sub.serviceType}","${sub.email}","${sub.phone}","${date}"\n`;
+            });
+
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+            element.setAttribute('download', `consultations_${new Date().toISOString().split('T')[0]}.csv`);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+
+            showSuccessMessage('Data exported successfully');
+        }
+
+        // Show success message
+        function showSuccessMessage(msg) {
+            const successMsg = document.getElementById('successMessage');
+            successMsg.textContent = msg;
+            successMsg.classList.add('show');
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                document.getElementById('loginContainer').classList.remove('show');
+                document.getElementById('adminContainer').classList.add('show');
+                loadDashboard();
+            }
+        });
+
+        // Reload dashboard every 5 seconds
+        setInterval(() => {
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                loadDashboard();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
