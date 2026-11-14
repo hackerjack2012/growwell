@@ -20,33 +20,6 @@ import {
 
 const STORAGE_KEY = 'growChildSubmissions';
 
-const SAMPLE_SUBMISSIONS: ConsultationSubmission[] = [
-  {
-    id: 'sample-1',
-    parentName: 'Meera Kapoor',
-    childName: 'Vihaan',
-    childAge: '4',
-    serviceType: 'speech',
-    email: 'meera.kapoor@example.com',
-    phone: '+91 98154 22310',
-    notes: 'Looking for gentle speech clarity & social play sessions after 3 PM.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    status: 'new',
-  },
-  {
-    id: 'sample-2',
-    parentName: 'Harpreet Singh',
-    childName: 'Simran',
-    childAge: '6',
-    serviceType: 'occupational',
-    email: 'harpreet.s@example.com',
-    phone: '+91 98761 44890',
-    notes: 'Fine motor & handwriting support ahead of primary school.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 28).toISOString(),
-    status: 'scheduled',
-  },
-];
-
 function loadSubmissions(): ConsultationSubmission[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -107,10 +80,6 @@ export function App() {
 
   const handleDeleteSubmission = (index: number) => {
     setSubmissions((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
-  const handleLoadSampleData = () => {
-    setSubmissions(SAMPLE_SUBMISSIONS);
   };
 
   const newSubmissionsCount = submissions.filter(
@@ -178,7 +147,6 @@ export function App() {
         submissions={submissions}
         onUpdateStatus={handleUpdateStatus}
         onDeleteSubmission={handleDeleteSubmission}
-        onLoadSampleData={handleLoadSampleData}
       />
     </div>
   );

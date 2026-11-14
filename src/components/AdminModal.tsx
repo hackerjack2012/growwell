@@ -1,17 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Download,
+  Eye,
+  EyeOff,
   Inbox,
   Lock,
   Mail,
   MessageCircle,
   Phone,
   Search,
-  Sparkles,
   Trash2,
   Unlock,
   X,
 } from 'lucide-react';
+import {
+  LOCKOUT_SECONDS,
+  MAX_LOGIN_ATTEMPTS,
+  STAFF_PASSCODE,
+} from '../config/admin';
 import { SERVICE_LABELS } from '../data/content';
 import { ConsultationSubmission, SubmissionStatus } from '../types';
 
@@ -21,10 +27,7 @@ interface AdminModalProps {
   submissions: ConsultationSubmission[];
   onUpdateStatus: (index: number, status: SubmissionStatus) => void;
   onDeleteSubmission: (index: number) => void;
-  onLoadSampleData: () => void;
 }
-
-const DEMO_PASSCODE = '1234';
 
 const STATUS_STYLES: Record<SubmissionStatus, string> = {
   new: 'bg-[#FDF2E9] text-[#B85E27] border-[#F6D3B8]',
@@ -39,11 +42,13 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   submissions,
   onUpdateStatus,
   onDeleteSubmission,
-  onLoadSampleData,
 }) => {
   const [unlocked, setUnlocked] = useState(false);
   const [passcode, setPasscode] = useState('');
+  const [showPasscode, setShowPasscode] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [serviceFilter, setServiceFilter] = useState<string>('all_filter');
 
@@ -59,6 +64,27 @@ export const AdminModal: React.FC<AdminModalProps> = ({
       window.removeEventListener('keydown', handleKey);
     };
   }, [isOpen, onClose]);
+
+  // Countdown after repeated failed sign-in attempts
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = window.setTimeout(
+      () => setLockoutSeconds((prev) => prev - 1),
+      1000
+    );
+    return () => window.clearTimeout(timer);
+  }, [lockoutSeconds]);
+
+  // Reset the sign-in form whenever the portal is fully closed
+  useEffect(() => {
+    if (isOpen) return;
+    setUnlocked(false);
+    setPasscode('');
+    setShowPasscode(false);
+    setAuthError('');
+    setFailedAttempts(0);
+    setLockoutSeconds(0);
+  }, [isOpen]);
 
   const filteredWithIndices = useMemo(() => {
     return submissions
@@ -93,12 +119,34 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode.trim() === DEMO_PASSCODE) {
+    if (lockoutSeconds > 0) return;
+
+    if (passcode.trim() === STAFF_PASSCODE) {
       setUnlocked(true);
       setAuthError('');
       setPasscode('');
+      setFailedAttempts(0);
+      setLockoutSeconds(0);
+      return;
+    }
+
+    const nextAttempts = failedAttempts + 1;
+    setFailedAttempts(nextAttempts);
+    setPasscode('');
+
+    if (nextAttempts >= MAX_LOGIN_ATTEMPTS) {
+      setAuthError(
+        `Too many unsuccessful attempts. Please wait ${LOCKOUT_SECONDS} seconds before trying again.`
+      );
+      setLockoutSeconds(LOCKOUT_SECONDS);
+      setFailedAttempts(0);
     } else {
-      setAuthError('Incorrect staff passcode. Use demo code 1234.');
+      const remaining = MAX_LOGIN_ATTEMPTS - nextAttempts;
+      setAuthError(
+        `Incorrect staff passcode. ${remaining} ${
+          remaining === 1 ? 'attempt' : 'attempts'
+        } remaining.`
+      );
     }
   };
 
@@ -195,8 +243,13 @@ export const AdminModal: React.FC<AdminModalProps> = ({
         {!unlocked ? (
           /* Staff Passcode Screen */
           <div className="p-7 sm:p-8">
+            <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#667885] mb-3">
+              <Lock className="w-3.5 h-3.5 text-[#2E7D6F]" />
+              <span>Authorized staff only</span>
+            </div>
+
             <p className="text-sm text-[#4A5B68] leading-relaxed mb-5">
-              Enter your clinic staff passcode to view and manage consultation
+              Enter your private clinic passcode to view and manage consultation
               requests saved from the website.
             </p>
 
@@ -208,20 +261,43 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                 >
                   Staff Passcode
                 </label>
-                <input
-                  type="password"
-                  id="adminPasscode"
-                  value={passcode}
-                  onChange={(e) => {
-                    setPasscode(e.target.value);
-                    setAuthError('');
-                  }}
-                  placeholder="Enter 4-digit passcode (Demo: 1234)"
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#DDD6CA] text-sm text-[#1E2E3B] focus:border-[#2E7D6F] focus:ring-2 focus:ring-[#2E7D6F]/15 focus:outline-none"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type={showPasscode ? 'text' : 'password'}
+                    id="adminPasscode"
+                    name="adminPasscode"
+                    value={passcode}
+                    onChange={(e) => {
+                      setPasscode(e.target.value);
+                      setAuthError('');
+                    }}
+                    placeholder="Enter passcode"
+                    autoComplete="current-password"
+                    disabled={lockoutSeconds > 0}
+                    className="w-full pl-4 pr-12 py-3 rounded-xl bg-white border border-[#DDD6CA] text-sm text-[#1E2E3B] placeholder:text-[#98A4AE] focus:border-[#2E7D6F] focus:ring-2 focus:ring-[#2E7D6F]/15 focus:outline-none disabled:bg-[#F1ECE4] disabled:cursor-not-allowed"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasscode((prev) => !prev)}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg flex items-center justify-center text-[#7A8B97] hover:text-[#1E2E3B] hover:bg-[#F3EFE9] transition-colors cursor-pointer"
+                    aria-label={
+                      showPasscode ? 'Hide staff passcode' : 'Show staff passcode'
+                    }
+                    aria-pressed={showPasscode}
+                  >
+                    {showPasscode ? (
+                      <EyeOff className="w-4.5 h-4.5" />
+                    ) : (
+                      <Eye className="w-4.5 h-4.5" />
+                    )}
+                  </button>
+                </div>
                 {authError && (
-                  <p className="mt-1.5 text-xs font-medium text-[#C0483E]">
+                  <p
+                    role="alert"
+                    className="mt-2 text-xs font-medium text-[#B4433A] leading-relaxed"
+                  >
                     {authError}
                   </p>
                 )}
@@ -229,27 +305,20 @@ export const AdminModal: React.FC<AdminModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full bg-[#2E7D6F] hover:bg-[#236358] text-white font-semibold py-3 rounded-full transition-colors cursor-pointer"
+                disabled={lockoutSeconds > 0 || passcode.length === 0}
+                className="w-full bg-[#2E7D6F] hover:bg-[#236358] disabled:bg-[#B9CDC8] text-white font-semibold py-3 rounded-full transition-colors cursor-pointer disabled:cursor-not-allowed"
               >
-                Sign In to Dashboard
+                {lockoutSeconds > 0
+                  ? `Locked for ${lockoutSeconds}s`
+                  : 'Sign In to Dashboard'}
               </button>
             </form>
 
-            <div className="mt-5 pt-5 border-t border-[#EAE4DB] flex items-center justify-between gap-2 text-xs text-[#647583]">
-              <span>
-                Demo passcode:{' '}
-                <strong className="font-mono text-[#1E2E3B]">1234</strong>
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setUnlocked(true);
-                  setAuthError('');
-                }}
-                className="font-semibold text-[#2E7D6F] hover:underline cursor-pointer"
-              >
-                Quick Demo Access →
-              </button>
+            <div className="mt-5 pt-5 border-t border-[#EAE4DB] text-xs text-[#7A8B97] leading-relaxed">
+              <p>
+                Forgot or need to update the passcode? Contact the center
+                administrator.
+              </p>
             </div>
           </div>
         ) : (
@@ -338,17 +407,6 @@ export const AdminModal: React.FC<AdminModalProps> = ({
                     ? 'Submissions from the booking form automatically appear here in real time.'
                     : 'Try clearing your search or selecting another therapy filter.'}
                 </p>
-
-                {submissions.length === 0 && (
-                  <button
-                    type="button"
-                    onClick={onLoadSampleData}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EDF6F3] hover:bg-[#D7ECE5] text-[#236358] text-xs font-bold transition-colors cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Load Sample Inquiries to Preview</span>
-                  </button>
-                )}
               </div>
             ) : (
               <div className="space-y-3">
