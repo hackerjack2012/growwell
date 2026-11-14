@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+
+  --color-alabaster: #FAF8F5;
+  --color-cream: #F3EFE9;
+  --color-sage-50: #EDF6F3;
+  --color-sage-100: #D7ECE5;
+  --color-sage-500: #4A9B8E;
+  --color-sage-600: #2E7D6F;
+  --color-sage-700: #236358;
+  --color-terracotta-50: #FDF2E9;
+  --color-terracotta-500: #E68A4F;
+  --color-terracotta-600: #CF7035;
+  --color-ink: #1E2E3B;
+  --color-slate-body: #4A5B68;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background-color: var(--color-alabaster);
+    scroll-behavior: smooth;
+  }
+
+  html.text-large {
+    font-size: 112.5%;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-serif);
+    letter-spacing: -0.015em;
+  }
+
+  :focus-visible {
+    outline: 2.5px solid #2E7D6F;
+    outline-offset: 2px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-modal-up {
+  animation: modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
